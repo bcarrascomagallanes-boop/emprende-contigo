@@ -297,7 +297,7 @@ function Servicios({ data, update }: P) {
     <div>
       <Title t="Mi Catálogo de Servicios" s="Define tus precios y duración. Así te verán tus clientas." />
       <form className={`${card} mb-5 grid gap-3 sm:grid-cols-5`} onSubmit={(e) => {
-        e.preventDefault(); const precio = Number(f.precio); if (!f.nombre.trim() || !(precio > 0)) return toast.error("Completa nombre y precio");
+        e.preventDefault(); const precio = Number(f.precio); if (!f.nombre.trim() || !(precio > 0)) { toast.error("Completa nombre y precio"); return; }
         update((d) => ({ ...d, servicios: [...d.servicios, { id: uid(), nombre: f.nombre.trim(), categoria: f.categoria, precio, duracion: Number(f.duracion) || 60 }] }));
         setF({ ...f, nombre: "", precio: "" }); toast.success("Servicio agregado ✨");
       }}>
