@@ -1,3 +1,3 @@
 # Tasks
 - [ ] Adaptar la app para clientas con Gina Magallanes destacada.
-- [ ] Usar la nueva referencia indicada por la usuaria; pendiente de recibir la imagen, archivo o enlace.
+- [ ] Usar app_cliente-2.html como referencia de pantallas y presentación de Gina.
