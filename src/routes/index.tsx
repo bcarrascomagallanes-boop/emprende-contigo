@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
+import { CustomerHome } from '@/components/customer-app';
+import { useDemoAccess, type DemoProfile } from '@/lib/demo-access';
 import {
   LayoutDashboard, CalendarDays, Scissors, Users, Wallet, Megaphone, MessageCircle, Store,
   LogOut, Plus, Trash2, Check, X, TrendingUp, Star, Crown, Sparkles, Clock, Target, Send, Lightbulb,
@@ -9,10 +12,12 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BiAn Beauty Emprendedora — Gestiona tu negocio de belleza" },
+      { title: "BiAn Beauty — Cliente, Emprendedor y Administrador" },
       { name: "description", content: "Agenda, servicios, clientas, finanzas y promociones para emprendedoras de belleza." },
       { property: "og:title", content: "BiAn Beauty Emprendedora" },
       { property: "og:description", content: "Tu negocio de belleza, tu tiempo, tu poder." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: App,
@@ -87,20 +92,21 @@ const card = "rounded-3xl border border-border bg-card p-5 shadow-premium";
 
 function App() {
   const [data, setData] = useState<Data>(seed);
-  const [logged, setLogged] = useState(false);
+  const { profile, enter, exit } = useDemoAccess();
   const [tab, setTab] = useState<Tab>("panel");
 
   useEffect(() => {
     const raw = localStorage.getItem(KEY);
     if (raw) try { setData(JSON.parse(raw)); } catch {}
-    if (sessionStorage.getItem(KEY + "-s")) setLogged(true);
   }, []);
   const update = (fn: (d: Data) => Data) => setData((d) => { const n = fn(d); localStorage.setItem(KEY, JSON.stringify(n)); return n; });
 
-  if (!logged) return <Login data={data} onLogin={(nombre, negocio) => {
-    update((d) => ({ ...d, negocio: { ...d.negocio, duena: nombre, nombre: negocio } }));
-    sessionStorage.setItem(KEY + "-s", "1"); setLogged(true); toast.success(`¡Bienvenida, ${nombre.split(" ")[0]}! 💼`);
+  if (!profile) return <Login data={data} onLogin={(nombre, negocio, selected) => {
+    if (selected !== 'cliente') update((d) => ({ ...d, negocio: { ...d.negocio, duena: nombre, nombre: negocio } }));
+    setTab('panel'); enter(selected, nombre);
   }} />;
+
+  if (profile === 'cliente') return <CustomerHome />;
 
   return (
     <div className="min-h-screen bg-soft">
@@ -110,7 +116,7 @@ function App() {
             <div className="grid h-10 w-10 place-items-center rounded-2xl bg-brand text-primary-foreground"><Crown className="h-5 w-5" /></div>
             <div>
               <p className="serif-title text-lg font-bold leading-none text-mauve-dark">BiAn ♡ Beauty</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gold">Modo Emprendedora</p>
+              <p className="text-[10px] font-bold uppercase text-gold">{profile === 'emprendedor' ? 'Emprendedor' : 'Administrador'} · Vista de ejemplo</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -118,7 +124,7 @@ function App() {
               className={`rounded-full px-3 py-1 text-xs font-bold ${data.negocio.abierto ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
               ● {data.negocio.abierto ? "Abierto a reservas" : "Cerrado"}
             </button>
-            <button onClick={() => { sessionStorage.removeItem(KEY + "-s"); setLogged(false); }} className="text-muted-foreground hover:text-primary" aria-label="Salir"><LogOut className="h-5 w-5" /></button>
+            <Button variant="ghost" size="icon" onClick={exit} aria-label="Salir"><LogOut className="h-5 w-5" /></Button>
           </div>
         </div>
       </header>
@@ -152,8 +158,9 @@ function Title({ t, s }: { t: string; s: string }) {
   return <div className="mb-5"><h2 className="serif-title text-2xl font-bold text-mauve-dark">{t}</h2><p className="text-sm text-muted-foreground">{s}</p></div>;
 }
 
-function Login({ data, onLogin }: { data: Data; onLogin: (n: string, b: string) => void }) {
-  const [n, setN] = useState(data.negocio.duena);
+function Login({ data, onLogin }: { data: Data; onLogin: (n: string, b: string, profile: DemoProfile) => void }) {
+  const [selected, setSelected] = useState<DemoProfile>('cliente');
+  const [n, setN] = useState('');
   const [b, setB] = useState(data.negocio.nombre);
   return (
     <div className="grid min-h-screen place-items-center bg-soft px-4 py-10">
@@ -161,16 +168,17 @@ function Login({ data, onLogin }: { data: Data; onLogin: (n: string, b: string) 
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-3xl bg-brand text-primary-foreground shadow-premium"><Crown className="h-8 w-8" /></div>
           <h1 className="serif-title text-4xl font-black text-mauve-dark">BiAn ♡ Beauty</h1>
-          <p className="mt-1 text-xs font-bold uppercase tracking-[0.3em] text-gold">Para Emprendedoras</p>
-          <p className="mt-3 text-sm text-muted-foreground">Tu negocio, tu tiempo, tu poder.</p>
+          <p className="mt-1 text-xs font-bold uppercase text-gold">{selected === 'cliente' ? 'App Cliente' : selected === 'emprendedor' ? 'App Emprendedor' : 'Acceso Administrador'}</p>
+          <p className="mt-3 text-sm text-muted-foreground">Tu belleza, tu tiempo, tu poder.</p>
         </div>
-        <form className={`${card} space-y-4`} onSubmit={(e) => { e.preventDefault(); if (n.trim() && b.trim()) onLogin(n.trim(), b.trim()); }}>
+        <form className={`${card} space-y-4`} onSubmit={(e) => { e.preventDefault(); if (n.trim() && (selected === 'cliente' || b.trim())) onLogin(n.trim(), b.trim(), selected); }}>
+          <fieldset><legend className="mb-2 text-xs font-bold uppercase text-primary">Tipo de perfil</legend><div className="grid grid-cols-1 gap-2 sm:grid-cols-3">{(['administrador', 'emprendedor', 'cliente'] as const).map((option) => <Button key={option} type="button" aria-pressed={selected === option} variant={selected === option ? 'default' : 'outline'} className="h-16 flex-col gap-1 px-2 text-xs" onClick={() => setSelected(option)}>{option === 'administrador' ? <Crown /> : option === 'emprendedor' ? <Store /> : <Users />}{option === 'administrador' ? 'Administrador' : option === 'emprendedor' ? 'Emprendedor' : 'Cliente'}</Button>)}</div></fieldset>
           <label className="block text-xs font-bold uppercase tracking-wider text-primary">Tu nombre
             <input className={`${input} mt-1`} value={n} onChange={(e) => setN(e.target.value)} required /></label>
-          <label className="block text-xs font-bold uppercase tracking-wider text-primary">Nombre de tu negocio
-            <input className={`${input} mt-1`} value={b} onChange={(e) => setB(e.target.value)} required /></label>
-          <button className={`${btn} w-full py-3.5`}><Sparkles className="h-4 w-4" /> Entrar a mi negocio</button>
-          <p className="text-center text-[11px] text-muted-foreground">Tus datos se guardan en este dispositivo.</p>
+          {selected !== 'cliente' && <label className="block text-xs font-bold uppercase tracking-wider text-primary">Nombre de tu negocio
+            <input className={`${input} mt-1`} value={b} onChange={(e) => setB(e.target.value)} required /></label>}
+          <Button type="submit" className="h-12 w-full"><Sparkles className="h-4 w-4" />{selected === 'cliente' ? 'Entrar como cliente' : selected === 'emprendedor' ? 'Entrar como emprendedor' : 'Entrar como administrador'}</Button>
+          <p className="text-center text-[11px] text-muted-foreground">Acceso de ejemplo, sin cuentas ni permisos reales.</p>
         </form>
       </div>
     </div>

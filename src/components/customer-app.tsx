@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
+import { useDemoAccess } from '@/lib/demo-access';
 import { CalendarDays, Crown, Heart, Home, MessageCircle, Gift, UserRound, Search, Scissors, Sparkles, Hand, ArrowRight, Clock, Send, Check, Flower2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -14,8 +15,8 @@ const Context = createContext<CustomerState | null>(null);
 function useCustomer() { const value = useContext(Context); if (!value) throw new Error('Customer provider missing'); return value; }
 const input = 'w-full min-w-0 rounded-lg border border-input bg-card px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring';
 
-export function CustomerProvider({ children }: { children: ReactNode }) {
-  const [name, setName] = useState('');
+export function CustomerProvider({ children, initialName = '' }: { children: ReactNode; initialName?: string }) {
+  const [name, setName] = useState(initialName);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selected, book] = useState<Service | null>(null);
@@ -49,10 +50,12 @@ const navigation = [
 ] as const;
 export function CustomerShell({ children }: { children: ReactNode }) {
   const location = useLocation(); const { name } = useCustomer();
+  const { profile, exit } = useDemoAccess();
+  if (profile !== 'cliente') return <div className="grid min-h-screen place-items-center bg-background"><Button asChild><Link to="/">Volver al acceso</Link></Button></div>;
   return <div className="min-h-screen bg-background pb-24 md:pb-8">
     <header className="border-b border-border bg-card"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-5">
       <Link to="/" className="flex items-center gap-3"><Crown className="size-7 text-gold" /><span className="serif-title text-2xl font-bold text-primary">BiAn <span className="text-gold">♡</span> Beauty</span></Link>
-      <Button variant="ghost" asChild className="gap-2"><Link to="/perfil"><UserRound /><span className="hidden sm:inline">{name || 'Mi perfil'}</span></Link></Button>
+      <div className="flex items-center gap-2"><span className="text-xs font-bold text-primary">App Cliente</span><Button variant="ghost" asChild className="gap-2"><Link to="/perfil"><UserRound /><span className="hidden sm:inline">{name || 'Mi perfil'}</span></Link></Button><Button variant="outline" size="sm" asChild><Link to="/" onClick={exit}>Salir</Link></Button></div>
     </div></header>
     <div className="mx-auto hidden max-w-6xl items-center justify-between border-b border-border px-5 py-3 md:flex"><nav className="flex gap-2">{navigation.map((item) => <Button key={item.to} variant={location.pathname === item.to ? 'secondary' : 'ghost'} asChild><Link to={item.to}><item.icon />{item.label}</Link></Button>)}</nav><span className="text-xs text-muted-foreground">Para clientas</span></div>
     <main className="mx-auto max-w-6xl px-5 py-7">{children}</main>
@@ -71,7 +74,7 @@ export function CustomerHome() {
         <p className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase text-primary sm:text-xs"><Crown className="size-4 text-gold" /> Especialista destacada</p>
         <h1 className="serif-title text-3xl font-bold leading-tight text-foreground sm:text-4xl">Gina<br />Magallanes</h1>
         <p className="mt-3 max-w-64 text-xs leading-relaxed text-primary sm:text-sm">Keratinas y alisados.<br />Manicure y pedicure spa.</p>
-        <div className="mt-5 flex flex-wrap gap-2"><Button onClick={() => book(services[0])} className="text-xs sm:text-sm">Reservar con Gina <ArrowRight /></Button><Button variant="outline" onClick={() => setProfile(true)} className="text-xs sm:text-sm">Ver perfil</Button></div>
+        <div className="mt-5 flex flex-wrap gap-2"><Button onClick={() => { const service = services.find((item) => item.expert === 'gina'); if (service) book(service); }} className="text-xs sm:text-sm">Reservar con Gina <ArrowRight /></Button><Button variant="outline" onClick={() => setProfile(true)} className="text-xs sm:text-sm">Ver perfil</Button></div>
       </div>
     </section>
     <div className="mb-8 mt-3 flex items-center gap-2 text-[10px] text-muted-foreground"><Sparkles className="size-3" /> Imagen ilustrativa · Precios de la referencia, por confirmar</div>

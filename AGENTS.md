@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Demo profile selection is presentation-only, never authorization; real administrator access must use verified server-side roles.
+- Customer views share a root-mounted provider and distinct TanStack routes to preserve demo state while navigating.
