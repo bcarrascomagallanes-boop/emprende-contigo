@@ -116,7 +116,7 @@ function App() {
             <div className="grid h-10 w-10 place-items-center rounded-2xl bg-brand text-primary-foreground"><Crown className="h-5 w-5" /></div>
             <div>
               <p className="serif-title text-lg font-bold leading-none text-mauve-dark">BiAn ♡ Beauty</p>
-              <p className="text-[10px] font-bold uppercase text-gold">{profile === 'emprendedor' ? 'Emprendedor' : 'Administrador'} · Vista de ejemplo</p>
+              <p className="text-[10px] font-bold uppercase text-gold">{profile === 'emprendedor' ? 'Emprendedor' : 'Administrador'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -178,7 +178,6 @@ function Login({ data, onLogin }: { data: Data; onLogin: (n: string, b: string, 
           {selected !== 'cliente' && <label className="block text-xs font-bold uppercase tracking-wider text-primary">Nombre de tu negocio
             <input className={`${input} mt-1`} value={b} onChange={(e) => setB(e.target.value)} required /></label>}
           <Button type="submit" className="h-12 w-full"><Sparkles className="h-4 w-4" />{selected === 'cliente' ? 'Entrar como cliente' : selected === 'emprendedor' ? 'Entrar como emprendedor' : 'Entrar como administrador'}</Button>
-          <p className="text-center text-[11px] text-muted-foreground">Acceso de ejemplo, sin cuentas ni permisos reales.</p>
         </form>
       </div>
     </div>
