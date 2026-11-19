@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
 import { CustomerHome } from '@/components/customer-app';
 import { useDemoAccess, type DemoProfile } from '@/lib/demo-access';
+import { useAuth } from '@/lib/auth';
+import { AuthScreen } from '@/components/auth-screen';
 import {
   LayoutDashboard, CalendarDays, Scissors, Users, Wallet, Megaphone, MessageCircle, Store,
   LogOut, Plus, Trash2, Check, X, TrendingUp, Star, Crown, Sparkles, Clock, Target, Send, Lightbulb,
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: App,
+  component: Entry,
 });
 
 type Status = "pendiente" | "confirmada" | "completada" | "cancelada";
@@ -470,4 +472,12 @@ function Negocio({ data, update }: P) {
       </div>
     </div>
   );
+}
+
+function Entry() {
+  const { user, role, loading } = useAuth();
+  if (loading) return null;
+  if (!user || !role) return <AuthScreen />;
+  if (role === 'cliente') return <CustomerHome />;
+  return <App />;
 }

@@ -11,7 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
-import { DemoAccessProvider, useDemoAccess } from '@/lib/demo-access';
+import { AuthProvider } from '@/lib/auth';
 import { CustomerProvider } from '@/components/customer-app';
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -121,13 +121,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <DemoAccessProvider><CustomerSession /></DemoAccessProvider>
+      <AuthProvider><CustomerProvider><Outlet /></CustomerProvider></AuthProvider>
       <Toaster position="top-right" richColors />
     </QueryClientProvider>
   );
 }
 
-function CustomerSession() {
-  const { profile, name } = useDemoAccess();
-  return <CustomerProvider key={`${profile}-${name}`} initialName={name}><Outlet /></CustomerProvider>;
-}
