@@ -14,6 +14,7 @@ import { Route as MensajesRouteImport } from './routes/mensajes'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as RecompensasRouteImport } from './routes/recompensas'
 import { Route as ReservasRouteImport } from './routes/reservas'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const ReservasRoute = ReservasRouteImport.update({
   path: '/reservas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/recompensas': typeof RecompensasRoute
   '/reservas': typeof ReservasRoute
+  '/reset-password': typeof ResetPasswordRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/recompensas': typeof RecompensasRoute
   '/reservas': typeof ReservasRoute
+  '/reset-password': typeof ResetPasswordRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,33 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/recompensas': typeof RecompensasRoute
   '/reservas': typeof ReservasRoute
+  '/reset-password': typeof ResetPasswordRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/mensajes' | '/perfil' | '/recompensas' | '/reservas'
+  fullPaths:
+    | '/'
+    | '/mensajes'
+    | '/perfil'
+    | '/recompensas'
+    | '/reservas'
+    | '/reset-password'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mensajes' | '/perfil' | '/recompensas' | '/reservas'
-  id: '__root__' | '/' | '/mensajes' | '/perfil' | '/recompensas' | '/reservas'
+  to:
+    | '/'
+    | '/mensajes'
+    | '/perfil'
+    | '/recompensas'
+    | '/reservas'
+    | '/reset-password'
+  id:
+    | '__root__'
+    | '/'
+    | '/mensajes'
+    | '/perfil'
+    | '/recompensas'
+    | '/reservas'
+    | '/reset-password'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +105,7 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   RecompensasRoute: typeof RecompensasRoute
   ReservasRoute: typeof ReservasRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReservasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   RecompensasRoute: RecompensasRoute,
   ReservasRoute: ReservasRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
